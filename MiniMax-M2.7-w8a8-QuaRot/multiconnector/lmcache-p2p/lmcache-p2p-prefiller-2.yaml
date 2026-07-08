@@ -1,0 +1,69 @@
+chunk_size: 256
+local_cpu: True
+max_local_cpu_size: 50
+# use_layerwise: False
+# save_decode_cache: True
+enable_async_loading: False
+save_only_first_rank: False
+store_async: True
+# remote_url: "mooncakestore://7.242.108.184:50051/"
+# # numa_mode: "auto"
+# local_disk: "file:///workspace/csy/lmcache_local_disk"
+# max_local_disk_size: 500
+
+internal_api_server_enabled: True
+internal_api_server_host: "0.0.0.0"
+internal_api_server_port_start: 4999
+
+# P2P configurations
+enable_p2p: True
+p2p_host: "localhost" # replace with the host ip
+p2p_init_ports: [9850, 9851, 9852, 9853, 9854, 9855, 9856, 9857] # per TP instance
+p2p_lookup_ports: [9870, 9871, 9872, 9873, 9874, 9875, 9876, 9877] # per TP instance
+transfer_channel: "hccl"
+p2p_use_npu: True # Intermediate buffer on NPU into which directly pulls. If not big enough fails
+p2p_pull_mode: True # REad vs write
+p2p_delay_pull: True # TO HBM
+# 128MB
+p2p_npu_buffer_size: 134217728
+
+# Controller configurations
+enable_controller: True
+lmcache_instance_id: "minimax27_lmcache_2p2d_prefiller_2"
+controller_pull_url: "localhost:9800" # replace with the controller pull url
+controller_reply_url: "localhost:9900" # replace with the controller reply url
+lmcache_worker_ports: [9840, 9841, 9842, 9843, 9844, 9845, 9846, 9847] # per TP instance
+
+extra_config:
+  lookup_backoff_time: 0.001
+  # Host-staging one-sided reads. Lives in HcclChannel, so this REQUIRES
+  # transfer_channel: "hccl" (NOT "hccl_onesided") and p2p_delay_pull: True.
+  # The producer registers ONE bounded, pinned host arena and serves one-sided
+  # reads out of staged copies, instead of registering the full CPU KV pool
+  # (which trips the >10GB device registration limit). The reader pulls into
+  # the NPU ping-pong buffers (p2p_use_npu / p2p_npu_buffer_size).
+  use_host_staging: True
+  # Arena size in bytes. Auto-carved into chunk-sized slots
+  # (slots = os_staging_bytes // chunk_bytes; ~12 MB/chunk = 24 KB/token * 512).
+  # This is the in-flight pull capacity: when all slots are busy, staging caps
+  # the hit (free_only) and the reader recomputes the rest -- no blocking.
+  # Keep SAFELY BELOW the ~10GB registration ceiling. NOTE: os_num_slots /
+  # os_slot_bytes belong to the hccl_onesided ring and are ignored here.
+  os_staging_bytes: 8589934592  # 8 GiB (~680 slots @ 12 MB); tune to your limit
+  # Optional lease knobs (defaults shown). The producer stamps p2p_pull_pending_ttl
+  # as the slot lease; the reader subtracts p2p_pull_lease_guard_s before each
+  # read so it finishes before reclaim. Keep ttl >= os_ack_timeout_sec.
+  # p2p_pull_pending_ttl: 60.0
+  # p2p_pull_lease_guard_s: 15.0
+
+#   lookup_backoff_time: 0.001
+#   use_exists_async: true
+#   save_chunk_meta: False
+#   local_buffer_size: 0
+#   local_hostname: "7.242.108.184"
+#   metadata_server: "P2PHANDSHAKE"
+#   protocol: "ascend"
+#   global_segment_size: 21474836480
+#   master_server_address: "7.242.108.184:50051"
+#   mooncake_prefer_local_alloc: true
+#   use_ascend_direct: true
