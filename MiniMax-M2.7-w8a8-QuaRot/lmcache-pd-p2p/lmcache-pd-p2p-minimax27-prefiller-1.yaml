@@ -1,0 +1,49 @@
+chunk_size: 256
+local_cpu: True
+max_local_cpu_size: 50
+enable_async_loading: False
+save_only_first_rank: False
+store_async: True
+
+retrieve_locations:
+  - "LocalCPUBackend"
+  - "P2PBackend"
+
+internal_api_server_enabled: True
+internal_api_server_host: "0.0.0.0"
+internal_api_server_port_start: 3999
+
+enable_pd: True
+transfer_channel: "hccl"
+pd_role: "sender"
+pd_pull_mode: True
+pd_delay_pull: True
+pd_pull_done_port: [7700, 7701, 7702, 7703, 7704, 7705, 7706, 7707]
+pd_use_cpu_offload: True
+pd_cpu_buffer_size: 42949672960
+pd_peer_host: "DECODER_NODE0_IP"
+pd_proxy_host: "PROXY_NODE_IP"
+pd_proxy_port: 7500
+pd_buffer_size: 2415919104
+pd_buffer_device: "npu"
+save_unfull_chunk: True
+
+enable_p2p: True
+p2p_host: "localhost"
+p2p_init_ports: [9950, 9951, 9952, 9953, 9954, 9955, 9956, 9957]
+p2p_lookup_ports: [9970, 9971, 9972, 9973, 9974, 9975, 9976, 9977]
+p2p_use_npu: True
+p2p_pull_mode: True
+p2p_delay_pull: True
+p2p_npu_buffer_size: 134217728
+
+enable_controller: True
+lmcache_instance_id: "minimax27_lmcache_pd_p2p_prefiller_1"
+controller_pull_url: "localhost:9800"
+controller_reply_url: "localhost:9900"
+lmcache_worker_ports: [9940, 9941, 9942, 9943, 9944, 9945, 9946, 9947]
+
+extra_config:
+  lookup_backoff_time: 0.001
+  use_host_staging: True
+  os_staging_bytes: 8589934592
