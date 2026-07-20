@@ -2,6 +2,10 @@ chunk_size: 256
 local_cpu: false
 enable_async_loading: false
 
+internal_api_server_enabled: true
+internal_api_server_host: "0.0.0.0"
+internal_api_server_port_start: 4999
+
 enable_pd: true
 transfer_channel: "hccl"
 pd_role: "receiver"

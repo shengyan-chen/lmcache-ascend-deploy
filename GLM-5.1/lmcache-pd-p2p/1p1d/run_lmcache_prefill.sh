@@ -27,26 +27,31 @@ fi
 mkdir -p "$LOG_DIR"
 
 export LMCACHE_CONFIG_FILE
+
 export HCCL_OP_EXPANSION_MODE="AIV"
+
 export HCCL_IF_IP="$LOCAL_IP"
 export GLOO_SOCKET_IFNAME="$NIC_NAME"
 export TP_SOCKET_IFNAME="$NIC_NAME"
 export HCCL_SOCKET_IFNAME="$NIC_NAME"
-export VLLM_HOST_IP="$LOCAL_IP"
 
+#Mooncake
 export OMP_PROC_BIND=false
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
 export PYTORCH_NPU_ALLOC_CONF="${PYTORCH_NPU_ALLOC_CONF:-expandable_segments:True}"
 export HCCL_BUFFSIZE="${HCCL_BUFFSIZE:-256}"
-export HCCL_INTRA_ROCE_ENABLE="${HCCL_INTRA_ROCE_ENABLE:-1}"
 
 export ASCEND_AGGREGATE_ENABLE=1
 export ASCEND_TRANSPORT_PRINT=1
 export ACL_OP_INIT_MODE=1
 export ASCEND_A3_ENABLE=1
+
+# Timeout (in seconds) for automatically releasing the prefiller’s KV cache for a particular request.
+export VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT=480
 export ASCEND_BUFFER_POOL="${ASCEND_BUFFER_POOL:-4:8}"
 export ASCEND_RT_VISIBLE_DEVICES="${PREFILL_DEVICES:-8,9,10,11,12,13,14,15}"
 # export VLLM_ASCEND_ENABLE_FLASHCOMM1=1
+# export VLLM_ASCEND_ENABLE_FUSED_MC2=1
 
 # 8,9,10,11,12,13,14,15
 # 0,1,2,3,4,5,6,7
@@ -55,6 +60,7 @@ export VLLM_USE_V1=1
 export VLLM_ENABLE_V1_MULTIPROCESSING=1
 export VLLM_WORKER_MULTIPROC_METHOD=spawn
 export PYTHONHASHSEED=0
+
 export PYTHONPATH="/vllm-workspace/vllm${PYTHONPATH:+:${PYTHONPATH}}"
 export LD_LIBRARY_PATH="/usr/local/Ascend/ascend-toolkit/latest/python/site-packages:/usr/local/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
@@ -85,7 +91,14 @@ vllm serve "$MODEL_PATH" \
     --enable-auto-tool-choice \
     --tool-call-parser glm47 \
     --reasoning-parser glm45 \
-    --kv-transfer-config '{"kv_connector": "LMCacheAscendConnector", "kv_role": "kv_producer", "kv_connector_extra_config": {"discard_partial_chunks": false, "lmcache_rpc_port": "producer1"}}' \
+    --kv-transfer-config '{
+        "kv_connector": "LMCacheAscendConnector",
+        "kv_role": "kv_producer",
+        "kv_connector_extra_config": {
+            "discard_partial_chunks": false,
+            "lmcache_rpc_port": "producer1"
+        }
+    }' \
     2>&1 | tee "${LOG_DIR}/lmcache_prefill_${TIMESTAMP}.log"
 
     #     --no-enable-prefix-caching \
