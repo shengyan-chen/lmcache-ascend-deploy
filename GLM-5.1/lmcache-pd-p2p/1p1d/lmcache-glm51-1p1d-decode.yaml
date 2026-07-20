@@ -1,0 +1,28 @@
+chunk_size: 256
+local_cpu: false
+enable_async_loading: false
+
+enable_pd: true
+transfer_channel: "hccl"
+pd_role: "receiver"
+pd_peer_host: "DECODER_IP"
+pd_pull_mode: true
+pd_delay_pull: true
+
+pd_peer_init_port: [7300, 7301, 7302, 7303, 7304, 7305, 7306, 7307]
+pd_peer_alloc_port: [7400, 7401, 7402, 7403, 7404, 7405, 7406, 7407]
+
+# pd_peer_init_port: [7300, 7301, 7302, 7303, 7304, 7305, 7306, 7307, 7308, 7309, 7310, 7311, 7312, 7313, 7314, 7315]
+# pd_peer_alloc_port: [7400, 7401, 7402, 7403, 7404, 7405, 7406, 7407, 7408, 7409, 7410, 7411, 7412, 7413, 7414, 7415]
+
+pd_buffer_size: 134217728
+pd_buffer_device: "npu"
+
+# Decode retrieves the Prefill KV exclusively through PDBackend.
+retrieve_locations:
+  - "PDBackend"
+
+save_unfull_chunk: true
+
+extra_config:
+  save_only_first_rank: false

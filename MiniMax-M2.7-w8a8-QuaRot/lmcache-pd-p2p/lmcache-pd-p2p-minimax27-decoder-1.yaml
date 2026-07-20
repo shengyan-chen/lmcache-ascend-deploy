@@ -1,12 +1,11 @@
 chunk_size: 256
 local_cpu: False
 enable_async_loading: False
-save_only_first_rank: False
 
 enable_pd: True
 transfer_channel: "hccl"
 pd_role: "receiver"
-pd_peer_host: "PREFILLER_NODE0_IP"
+pd_peer_host: "DECODER_NODE1_IP"
 pd_pull_mode: True
 pd_delay_pull: True
 pd_peer_init_port: [7300, 7301, 7302, 7303, 7304, 7305, 7306, 7307]
@@ -18,3 +17,6 @@ retrieve_locations:
   - "PDBackend"
 
 save_unfull_chunk: True
+
+extra_config:
+  save_only_first_rank: false

@@ -2,7 +2,6 @@ chunk_size: 256
 local_cpu: True
 max_local_cpu_size: 50
 enable_async_loading: False
-save_only_first_rank: False
 store_async: True
 
 retrieve_locations:
@@ -21,7 +20,7 @@ pd_delay_pull: True
 pd_pull_done_port: [7700, 7701, 7702, 7703, 7704, 7705, 7706, 7707]
 pd_use_cpu_offload: True
 pd_cpu_buffer_size: 42949672960
-pd_peer_host: "DECODER_NODE0_IP"
+pd_peer_host: "PREFILL_NODE1_IP"
 pd_proxy_host: "PROXY_NODE_IP"
 pd_proxy_port: 7500
 pd_buffer_size: 2415919104
@@ -47,3 +46,4 @@ extra_config:
   lookup_backoff_time: 0.001
   use_host_staging: True
   os_staging_bytes: 8589934592
+  save_only_first_rank: False
